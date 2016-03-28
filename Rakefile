@@ -1,15 +1,6 @@
 # -*- coding: utf-8 -*-
 require 'yaml'
 
-config_files = [
-  YAML.load_file(File.dirname(__FILE__) + "/config/mlab.yml")
-]
-
-config = {}
-config_files.each do |file|
-  file.each {|key, value| config[key] = value}
-end
-
 task:default => [:github_push, :heroku_deploy]
 
 task :update_config => [:clean, :insert]
@@ -41,6 +32,14 @@ task :heroku_deploy => [:github_push] do
 end
 
 task :heroku_env => [:heroku_env_clean, :timezone, :lang] do
+  config_files = [
+    YAML.load_file(File.dirname(__FILE__) + "/config/mlab.yml")
+  ]
+  config = {}
+  config_files.each do |file|
+    file.each {|key, value| config[key] = value}
+  end
+
   config.each do |key, value|
     sh "heroku config:add #{key}=#{value}"
   end
