@@ -17,7 +17,7 @@ OptionParser.new do |opt|
   opt.parse!
 end
 
-file = File.dirname(__FILE__) + "/../config/mlab.yml"
+file = File.dirname(__FILE__) + "/config/mlab.yml"
 mlab = File.exist?(file) ? YAML.load_file(file) : ENV
 database = mlab['database']
 collection = mlab['collection']

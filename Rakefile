@@ -9,18 +9,18 @@ task :clean do
   sh "ruby #{File.dirname(__FILE__)}/tumblr_config.rb -d"
 end
 
+def execute_command(keyword, tag)
+  sh "ruby #{File.dirname(__FILE__)}/tumblr_config.rb -w #{keyword} -t #{tag}"
+end
+
 task :insert do
-  keyword = "ごらく部"
-  tag = "七森中☆ごらく部,三上枝織,大坪由佳,津田美波,大久保瑠美"
-  sh "ruby #{File.dirname(__FILE__)}/tumblr_config.rb -w #{keyword} -t #{tag}"
-
-  keyword = "ゆるゆり"
-  tag = "ゆるゆり,なもり,赤座あかり,歳納京子,船見結衣,吉川ちなつ"
-  sh "ruby #{File.dirname(__FILE__)}/tumblr_config.rb -w #{keyword} -t #{tag}"
-
-  keyword = "ラブライブ"
-  tag = "ラブライブ！,ラブライブ,高坂穂乃果"
-  sh "ruby #{File.dirname(__FILE__)}/tumblr_config.rb -w #{keyword} -t #{tag}"
+  execute_command "ごらく部", "七森中☆ごらく部,三上枝織,大坪由佳,津田美波,大久保瑠美"
+  execute_command "みかしー", "三上枝織,mikami shiori"
+  execute_command "るみるみ", "大久保瑠美,ookubo rumi"
+  execute_command "ゆかちん", "大坪由佳,ootsubo yuka"
+  execute_command "つだちゃん", "津田美波,tsuda minami"
+  execute_command "ゆるゆり", "ゆるゆり,なもり,赤座あかり,歳納京子,船見結衣,吉川ちなつ"
+  execute_command "ラブライブ", "ラブライブ！,ラブライブ,高坂穂乃果,南ことり,園田海未,西木野真姫,星空凛,小泉花陽,絢瀬絵里,東條希,矢澤にこ"
 end
 
 task :github_push do
