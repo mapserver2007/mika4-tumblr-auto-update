@@ -3,24 +3,24 @@ require 'yaml'
 
 task:default => [:github_push, :heroku_deploy]
 
-task :update_config => [:clean, :insert]
+task :update => [:clean, :insert]
 
 task :clean do
-  sh "heroku run ruby #{File.dirname(__FILE__)}/tumblr_config.rb -d"
+  sh "heroku run ruby tumblr_config.rb -d"
 end
 
 task :insert do
   keyword = "ごらく部"
   tag = "七森中☆ごらく部,三上枝織,大坪由佳,津田美波,大久保瑠美"
-  sh "heroku run ruby #{File.dirname(__FILE__)}/tumblr_config.rb -w #{keyword} -t #{tag}"
+  sh "heroku run ruby tumblr_config.rb -w #{keyword} -t #{tag}"
 
   keyword = "ゆるゆり"
   tag = "ゆるゆり,なもり,赤座あかり,歳納京子,船見結衣,吉川ちなつ"
-  sh "heroku run ruby #{File.dirname(__FILE__)}/tumblr_config.rb -w #{keyword} -t #{tag}"
+  sh "heroku run ruby tumblr_config.rb -w #{keyword} -t #{tag}"
 
   keyword = "ラブライブ"
   tag = "ラブライブ！,ラブライブ,高坂穂乃果"
-  sh "heroku run ruby #{File.dirname(__FILE__)}/tumblr_config.rb -w #{keyword} -t #{tag}"
+  sh "heroku run ruby tumblr_config.rb -w #{keyword} -t #{tag}"
 end
 
 task :github_push do
