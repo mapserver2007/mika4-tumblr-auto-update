@@ -46,6 +46,14 @@ task :heroku_env => [:heroku_env_clean, :timezone, :lang] do
 end
 
 task :heroku_env_clean do
+  config_files = [
+    YAML.load_file(File.dirname(__FILE__) + "/config/mlab.yml")
+  ]
+  config = {}
+  config_files.each do |file|
+    file.each {|key, value| config[key] = value}
+  end
+
   config.each do |key, value|
     sh "heroku config:remove #{key}"
   end
