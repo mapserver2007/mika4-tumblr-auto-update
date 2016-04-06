@@ -23,6 +23,7 @@ GEM
     nokogiri (1.6.7.2)
       mini_portile2 (~> 2.0.0.rc2)
     ntlm-http (0.1.1)
+    parallel_runner (0.0.3)
     rake (11.1.2)
     unf (0.1.4)
       unf_ext
@@ -36,6 +37,7 @@ DEPENDENCIES
   json
   log4r
   mechanize
+  parallel_runner
   rake
 
 BUNDLED WITH
