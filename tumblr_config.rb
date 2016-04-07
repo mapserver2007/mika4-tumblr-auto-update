@@ -29,7 +29,7 @@ def clean(config)
   https.use_ssl = true
   https.verify_mode = OpenSSL::SSL::VERIFY_NONE
   https.start do |request|
-    raise unless request.put(config['apipath'] + "?apiKey=#{config['apikey']}", [].to_json, config['header']).code == "200"
+    raise unless request.put(config['path'] + "?apiKey=#{config['apikey']}", [].to_json, config['header']).code == "200"
   end
 end
 
@@ -39,7 +39,7 @@ def save(config, data)
   https.use_ssl = true
   https.verify_mode = OpenSSL::SSL::VERIFY_NONE
   https.start do |request|
-    raise unless request.post(config['apipath'] + "?apiKey=#{config['apikey']}", data.to_json, config['header']).code == "200"
+    raise unless request.post(config['path'] + "?apiKey=#{config['apikey']}", data.to_json, config['header']).code == "200"
   end
 end
 
@@ -54,8 +54,10 @@ logger.outputters << Log4r::StdoutOutputter.new('console', {
 })
 
 file = File.dirname(__FILE__) + "/config/mlab.yml"
-config = File.exist?(file) ? YAML.load_file(file) : ENV
-config['apipath'] = '/api/1/databases/%s/collections/%s' % [config['database'], config['collection']]
+mlab = File.exist?(file) ? YAML.load_file(file) : ENV
+config = {}
+config['apikey'] = mlab['apikey']
+config['path'] = '/api/1/databases/%s/collections/%s' % [mlab['database'], mlab['collection']]
 config['header'] = {'Content-Type' => "application/json"}
 
 clean(config)
