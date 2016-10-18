@@ -10,15 +10,21 @@ def create_list(keyword, tag)
   data = {
     :keyword => keyword,
     :tag => tag,
-    :id => []
+    :img => []
   }
   agent = Mechanize.new
   agent.user_agent_alias = 'Mac Mozilla'
   agent.read_timeout = 10
-  site = agent.get(URI.encode("https://www.tumblr.com/search/#{tag}"))
-  tumblr_lines = (site/'//div[@class="post-info-tumblelog"]/a')
+  site = agent.get(URI.encode("https://www.tumblr.com/search/#{tag}/recent"))
+  tumblr_lines = (site/'//img[@class="photo"]')
   tumblr_lines.each do |tumblr_line|
-    data[:id] << tumblr_line.inner_text
+    begin
+      imgUrl = tumblr_line.get_attribute("src")
+      imgUrl = tumblr_line.get_attribute("data-src") unless /^https?.+/ =~ imgUrl
+      data[:img] << imgUrl
+    rescue => e
+      logger.error e.message
+    end
   end
   data
 end
@@ -70,7 +76,7 @@ agent.user_agent_alias = 'Mac Mozilla'
 agent.read_timeout = 10
 site = agent.get(URI.encode("http://dic.nicovideo.jp/a/声優の愛称一覧"))
 list = (site/'//*[@id="article"]/table[2]/tbody/tr/td/ul/li').inject([]) {|l, e| l << e}
-list.each_parallel do |line|
+list.each do |line|
   if /(.+)\uFF08(.+)\uFF09/ =~ line.inner_text
     $1.split("\u30FB").each do |nickname|
       save(config, create_list(nickname, $2))
@@ -83,11 +89,11 @@ end
 # カスタムルール(特によく使うもの)
 file = File.dirname(__FILE__) + "/config/origin_rules.yml"
 origin_rules = YAML.load_file(file)
-origin_rules["list"].each_parallel do |keyword|
+origin_rules["list"].each do |keyword|
   save(config, create_list(keyword, keyword))
   logger.info "#{keyword} done."
 end
-origin_rules["alias"].each_parallel do |tag, keywords|
+origin_rules["alias"].each do |tag, keywords|
   keywords.each do |keyword|
     save(config, create_list(keyword, tag))
   end
