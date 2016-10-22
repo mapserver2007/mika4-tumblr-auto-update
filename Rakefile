@@ -3,8 +3,8 @@ require 'yaml'
 
 task:default => [:github_push, :heroku_deploy]
 
-task :update do
-  sh "ruby #{File.dirname(__FILE__)}/tumblr_config.rb"
+task :update_tumblr do
+  sh "ruby #{File.dirname(__FILE__)}/tumblr.rb"
 end
 
 task :github_push do
@@ -41,6 +41,10 @@ task :heroku_env_clean do
   config.each do |key, value|
     sh "heroku config:remove #{key}"
   end
+end
+
+task :heroku_create do
+  sh "heroku create --stack cedar-14 rumble-crawler"
 end
 
 task :timezone do
