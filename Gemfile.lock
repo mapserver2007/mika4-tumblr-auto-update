@@ -26,13 +26,14 @@ GEM
       mini_portile2 (~> 2.1.0)
       pkg-config (~> 1.1.7)
     ntlm-http (0.1.1)
-    parallel_runner (0.0.3)
+    parallel (1.9.0)
     pkg-config (1.1.7)
     rake (11.3.0)
     unf (0.1.4)
       unf_ext
     unf_ext (0.0.7.2)
     webrobots (0.1.2)
+    weighted_randomizer (0.1.2)
 
 PLATFORMS
   ruby
@@ -41,8 +42,9 @@ DEPENDENCIES
   json
   log4r
   mechanize
-  parallel_runner
+  parallel
   rake
+  weighted_randomizer
 
 RUBY VERSION
    ruby 2.3.1p112
