@@ -91,6 +91,19 @@ def update_name_master(config)
       end
     end
 
+    file = File.dirname(__FILE__) + "/config/origin_rules.yml"
+    origin_rules = YAML.load_file(file)
+    origin_rules["list"].each do |origin_name, keywords|
+      keywords.each do |keyword|
+        master << {
+          name: keyword,
+          origin_name: origin_name,
+          hash: Digest::MD5.hexdigest(origin_name)
+        }
+        yield :info, keyword
+      end
+    end
+
     clean(config)
     save(config, master)
     yield :info, "rumble_name_master updated."
