@@ -195,13 +195,15 @@ def search_tumblr(url)
   contents.each do |content|
     begin
       text = content.search('div[class="post_body"]/p[1]').text.gsub(/\n/, "")
+      updated_at = Time.now
       content.search('img[class="photo"]').each do |img|
         url = img.get_attribute("src")
         url = img.get_attribute("data-src") unless /^https?.+/ =~ url
         images << {
           url: url,
           text: text,
-          priority: 10
+          priority: 10,
+          updated_at: updated_at
         }
       end
     rescue => e
