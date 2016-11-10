@@ -240,7 +240,7 @@ def save(config, data)
   end
 end
 
-logger = Log4r::Logger.new("mika4-tumblr-auto-update")
+logger = Log4r::Logger.new("rumble-crawler")
 logger.level = 2 # INFO
 logger.outputters = []
 logger.outputters << Log4r::StdoutOutputter.new('console', {
@@ -270,59 +270,3 @@ config['header'] = {'Content-Type' => "application/json"}
 update_image_master(data, config) {|level, message|
   logger.send(level, message)
 }
-
-# clean(config)
-
-#
-# config = {}
-# config['apikey'] = mlab['apikey']
-# config['path'] = '/api/1/databases/%s/collections/%s' % [mlab['database'], mlab['collection']]
-# config['header'] = {'Content-Type' => "application/json"}
-# clean(config)
-# logger.info "clean done."
-#
-# # 声優のあだ名一覧を取得(女性声優のみ)
-# # ある日構成が変わったり、ページが削除されたら頑張って対応する
-# begin
-#   agent = Mechanize.new
-#   agent.user_agent_alias = 'Mac Mozilla'
-#   agent.read_timeout = 10
-#   site = agent.get(URI.encode("http://dic.nicovideo.jp/a/声優の愛称一覧"))
-#   list = (site/'//*[@id="article"]/table[2]/tbody/tr/td/ul/li').inject([]) {|l, e| l << e}
-#   list.each do |line|
-#     if /(.+)\uFF08(.+)\uFF09/ =~ line.inner_text
-#       $1.split("\u30FB").each do |nickname|
-#         save(config, create_list(nickname, $2) {|message|
-#           logger.error message
-#         })
-#       end
-#       save(config, create_list($2, $2))
-#       logger.info "#{$2} done."
-#     end
-#   end
-#
-#   # カスタムルール(特によく使うもの)
-#   file = File.dirname(__FILE__) + "/config/origin_rules.yml"
-#   origin_rules = YAML.load_file(file)
-#   origin_rules["list"].each do |keyword|
-#     save(config, create_list(keyword, keyword) {|message|
-#       logger.error message
-#     })
-#     logger.info "#{keyword} done."
-#   end
-#   origin_rules["alias"].each do |tag, keywords|
-#     keywords.each do |keyword|
-#       save(config, create_list(keyword, tag) {|message|
-#         logger.error message
-#       })
-#     end
-#     logger.info "#{tag} done."
-#   end
-#
-#   logger.info "update success."
-#
-# rescue => e
-#   logger.error e.message
-#   logger.error e.backtrace.join("\n")
-#   logger.info "update failure."
-# end
