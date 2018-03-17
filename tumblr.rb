@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 require 'optparse'
 require 'mechanize'
 require 'uri'
 require 'json'
 require 'log4r'
 require 'parallel'
-require "digest/md5"
+require 'digest/md5'
 
 def create_list(keyword, tag)
   data = {
@@ -244,10 +243,10 @@ logger = Log4r::Logger.new("rumble-crawler")
 logger.level = 2 # INFO
 logger.outputters = []
 logger.outputters << Log4r::StdoutOutputter.new('console', {
-    :formatter => Log4r::PatternFormatter.new(
-      :pattern => "[%l] %d: %M",
-      :date_format => "%Y/%m/%d %H:%M:%Sm"
-    )
+  formatter: Log4r::PatternFormatter.new(
+    pattern: "[%l] %d: %M",
+    date_format: "%Y/%m/%d %H:%M:%Sm"
+  )
 })
 
 file = File.dirname(__FILE__) + "/config/mlab.yml"

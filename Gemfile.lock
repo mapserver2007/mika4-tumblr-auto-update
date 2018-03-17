@@ -1,11 +1,11 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    domain_name (0.5.20160826)
+    domain_name (0.5.20170404)
       unf (>= 0.0.5, < 1.0.0)
-    http-cookie (1.0.2)
+    http-cookie (1.0.3)
       domain_name (~> 0.5)
-    json (2.0.2)
+    json (2.1.0)
     log4r (1.1.10)
     mechanize (2.7.5)
       domain_name (~> 0.5, >= 0.5.1)
@@ -19,19 +19,17 @@ GEM
     mime-types (3.1)
       mime-types-data (~> 3.2015)
     mime-types-data (3.2016.0521)
-    mini_portile2 (2.1.0)
-    net-http-digest_auth (1.4)
+    mini_portile2 (2.3.0)
+    net-http-digest_auth (1.4.1)
     net-http-persistent (2.9.4)
-    nokogiri (1.6.8)
-      mini_portile2 (~> 2.1.0)
-      pkg-config (~> 1.1.7)
+    nokogiri (1.8.2)
+      mini_portile2 (~> 2.3.0)
     ntlm-http (0.1.1)
-    parallel (1.9.0)
-    pkg-config (1.1.7)
-    rake (11.3.0)
+    parallel (1.12.1)
+    rake (12.3.0)
     unf (0.1.4)
       unf_ext
-    unf_ext (0.0.7.2)
+    unf_ext (0.0.7.5)
     webrobots (0.1.2)
     weighted_randomizer (0.1.2)
 
@@ -42,12 +40,13 @@ DEPENDENCIES
   json
   log4r
   mechanize
+  nokogiri (~> 1.8.0)
   parallel
   rake
   weighted_randomizer
 
 RUBY VERSION
-   ruby 2.3.1p112
+   ruby 2.4.3p205
 
 BUNDLED WITH
-   1.12.5
+   1.16.1
