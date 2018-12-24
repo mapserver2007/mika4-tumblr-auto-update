@@ -3,8 +3,8 @@ require 'yaml'
 
 task:default => [:github_push, :heroku_deploy]
 
-task :update_tumblr do
-  sh "ruby #{File.dirname(__FILE__)}/tumblr.rb"
+task :update_images do
+  sh "ruby #{File.dirname(__FILE__)}/bin/update-images.rb"
 end
 
 task :github_push do
@@ -44,7 +44,11 @@ task :heroku_env_clean do
 end
 
 task :heroku_create do
-  sh "heroku create --stack cedar-14 rumble-crawler"
+  sh "heroku create --stack cedar-14 rumble-server"
+end
+
+task :heroku_server_upgrade do
+  sh "heroku stack:set heroku-18 -a rumble-server"
 end
 
 task :timezone do
