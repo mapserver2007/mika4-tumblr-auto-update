@@ -1,10 +1,21 @@
-require 'optparse'
+# -*- coding: utf-8 -*-
+$: << File.dirname(__FILE__) + "/../lib"
+require 'nickname'
 require 'mechanize'
 require 'uri'
-require 'json'
 require 'log4r'
 require 'parallel'
-require 'digest/md5'
+require 'yaml'
+require 'json'
+require 'openssl'
+require 'net/https'
+
+def agent
+  mechanize = Mechanize.new
+  mechanize.user_agent_alias = ['Mac Mozilla', 'Mac Safari', 'iPhone', 'Windows Mozilla'].sample
+  mechanize.read_timeout = 10
+  mechanize
+end
 
 def create_list(keyword, tag)
   data = {
@@ -12,9 +23,6 @@ def create_list(keyword, tag)
     tag: tag,
     contents: []
   }
-  agent = Mechanize.new
-  agent.user_agent_alias = 'Mac Mozilla'
-  agent.read_timeout = 10
   site = agent.get(URI.encode("https://www.tumblr.com/search/#{tag}/recent"))
 
   contents = (site/'//section[@class="post_content"]')
@@ -34,87 +42,6 @@ def create_list(keyword, tag)
   data
 end
 
-def update_name_master(config)
-  # 声優のあだ名一覧を取得(女性声優のみ)
-  # ある日構成が変わったり、ページが削除されたら頑張って対応する
-  master = []
-  begin
-    agent = Mechanize.new
-    agent.user_agent_alias = 'Mac Mozilla'
-    agent.read_timeout = 10
-    site = agent.get(URI.encode("http://dic.nicovideo.jp/a/声優の愛称一覧"))
-    list = (site/'//*[@id="article"]/table[2]/tbody/tr/td/ul/li').inject([]) {|l, e| l << e}
-    list.each do |line|
-      if /(.+)\uFF08(.+)\uFF09/ =~ line.inner_text
-        names = []
-        unless $1.index('・').nil?
-          names = $1.split('・')
-        else
-          # ゆいトンは「トン」表記が「ゆい㌧」になっているため補正する
-          if $1 == 'ゆい㌧'
-            names = [$1, 'ゆいトン']
-          else
-            names << $1
-          end
-        end
-
-        origin_name = $2
-        origin_names = []
-        if origin_name.index('、')
-          origin_names = origin_name.split('、')
-        else
-          # ふーりん(佐本二厘)はふーりん(福原綾香)と被るため除外する
-          next if origin_name == '佐本二厘'
-          origin_names = [origin_name]
-        end
-
-        origin_names.each do |name|
-          master << {
-            name: name,
-            origin_name: name,
-            hash: Digest::MD5.hexdigest(name)
-          }
-          yield :info, name
-        end
-
-        names.each do |name|
-          origin_names.each do |oname|
-            master << {
-              name: name,
-              origin_name: oname,
-              hash: Digest::MD5.hexdigest(oname)
-            }
-            yield :info, name
-          end
-        end
-      end
-    end
-
-    file = File.dirname(__FILE__) + "/config/origin_rules.yml"
-    origin_rules = YAML.load_file(file)
-    origin_rules["list"].each do |origin_name, keywords|
-      keywords.each do |keyword|
-        master << {
-          name: keyword,
-          origin_name: origin_name,
-          hash: Digest::MD5.hexdigest(origin_name)
-        }
-        yield :info, keyword
-      end
-    end
-
-    clean(config)
-    save(config, master)
-    yield :info, "rumble_name_master updated."
-
-    master
-
-  rescue => e
-    yield :error, e.message
-    yield :error, e.backtrace.join("\n")
-  end
-end
-
 def update_image_master(master, config)
   # 現在の画像マスタデータ
   current_image_master = get(config) || []
@@ -123,17 +50,20 @@ def update_image_master(master, config)
   begin
     search_queries = []
     master.each do |data|
-      if data[:name] == data[:origin_name]
+      if data['name'] == data['origin_name']
         search_queries << {
-          url: "https://www.tumblr.com/search/#{data[:name]}/recent",
-          name: data[:name],
-          hash: data[:hash]
+          url: "https://www.tumblr.com/search/#{data['name']}/recent",
+          name: data['name'],
+          hash: data['hash']
         }
       end
     end
 
     Parallel.each(search_queries, in_threads: 3) do |query|
-      images = search_tumblr(query[:url])
+      images = search_tumblr(query[:url]) do |msg|
+        yield :error, msg
+      end
+
       if current_image_master.empty?
         image_master << {
           id: query[:hash],
@@ -184,15 +114,11 @@ end
 
 def search_tumblr(url)
   images = []
-  agent = Mechanize.new
-  agent.user_agent_alias = 'Mac Mozilla'
-  agent.read_timeout = 10
-  site = agent.get(URI.encode(url))
 
-  # 最新の画像を取得
-  contents = (site/'//section[@class="post_content"]')
-  contents.each do |content|
-    begin
+  begin
+    site = agent.get(URI.encode(url))
+    contents = (site/'//section[@class="post_content"]')
+    contents.each do |content|
       text = content.search('div[class="post_body"]/p[1]').text.gsub(/\n/, "")
       updated_at = Time.now
       content.search('img[class="photo"]').each do |img|
@@ -205,11 +131,12 @@ def search_tumblr(url)
           updated_at: updated_at
         }
       end
-    rescue => e
-      yield e.message
     end
+  rescue => e
+    yield e.message
   end
 
+  # 最新の画像を取得
   images
 end
 
@@ -229,7 +156,8 @@ end
 
 def get(config)
   https_start do |request|
-    JSON.parse(request.get(config['path'] + "?apiKey=#{config['apikey']}").body)
+    param = config['param'].collect {|k, v| "#{k}=#{v}"}.join("&")
+    JSON.parse(request.get(config['path'] + "?#{param}").body)
   end
 end
 
@@ -249,23 +177,39 @@ logger.outputters << Log4r::StdoutOutputter.new('console', {
   )
 })
 
-file = File.dirname(__FILE__) + "/config/mlab.yml"
+file = File.dirname(__FILE__) + "/../config/mlab.yml"
 mlab = File.exist?(file) ? YAML.load_file(file) : ENV
+
+# 日付からtype選択
+type_num = 3
+type = Time.now.day % type_num + 1
 
 # 声優マスタデータを作成 洗い替え
 config = {}
+config['param'] = { apiKey: mlab['apikey'], q: {type: type}.to_json }
 config['apikey'] = mlab['apikey']
 config['path'] = '/api/1/databases/%s/collections/%s' % [mlab['database'], "rumble_name_master"]
 config['header'] = {'Content-Type' => "application/json"}
-data = update_name_master(config) {|level, message|
-  logger.send(level, message)
-}
+nickname = NickName.new
+
+list = nickname.sync
+
+list.each do |elem|
+  logger.info elem.to_s
+end
+
+clean(config)
+save(config, list)
+logger.info "done."
+
+master_data = get(config)
 
 # 画像マスタデータを差分更新
 config = {}
+config['param'] = { apiKey: mlab['apikey'] }
 config['apikey'] = mlab['apikey']
 config['path'] = '/api/1/databases/%s/collections/%s' % [mlab['database'], "rumble_image_master"]
 config['header'] = {'Content-Type' => "application/json"}
-update_image_master(data, config) {|level, message|
+update_image_master(master_data, config) {|level, message|
   logger.send(level, message)
 }
