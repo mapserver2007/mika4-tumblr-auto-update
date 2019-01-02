@@ -3,7 +3,7 @@ Image crawler for rumble-server
 
 ## Usage
 ```ruby
-$> rake update_tumblr
+$> rake update_images
 ```
 
 ## License

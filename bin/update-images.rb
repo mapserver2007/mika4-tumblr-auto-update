@@ -50,6 +50,9 @@ def update_image_master(master, config)
   begin
     search_queries = []
     master.each do |data|
+      # TODO あだ名の場合はhashを正式名のものにおきかえ
+
+
       if data['name'] == data['origin_name']
         search_queries << {
           url: "https://www.tumblr.com/search/#{data['name']}/recent",
@@ -192,7 +195,7 @@ config['path'] = '/api/1/databases/%s/collections/%s' % [mlab['database'], "rumb
 config['header'] = {'Content-Type' => "application/json"}
 nickname = NickName.new
 
-list = nickname.sync
+list = nickname.sync(type)
 
 list.each do |elem|
   logger.info elem.to_s
