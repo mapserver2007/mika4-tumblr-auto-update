@@ -44,11 +44,11 @@ task :heroku_env_clean do
 end
 
 task :heroku_create do
-  sh "heroku create --stack cedar-14 rumble-server"
+  sh "heroku create --stack cedar-14 rumble-crawler"
 end
 
 task :heroku_server_upgrade do
-  sh "heroku stack:set heroku-18 -a rumble-server"
+  sh "heroku stack:set heroku-18 -a rumble-crawler"
 end
 
 task :timezone do
