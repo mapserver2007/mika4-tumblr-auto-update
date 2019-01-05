@@ -58,7 +58,8 @@ class NickName
             name: name,
             origin_name: name,
             hash: Digest::MD5.hexdigest(name),
-            type: TYPE_GENERAL
+            type: TYPE_GENERAL,
+            alias: false
           }
         end
 
@@ -68,7 +69,8 @@ class NickName
               name: name,
               origin_name: oname,
               hash: Digest::MD5.hexdigest(oname),
-              type: TYPE_GENERAL
+              type: TYPE_GENERAL,
+              alias: true
             }
           end
         end
@@ -94,7 +96,8 @@ class NickName
         name: oname,
         origin_name: oname,
         hash: Digest::MD5.hexdigest(oname),
-        type: TYPE_UMA
+        type: TYPE_UMA,
+        alias: false
       }
       nickname = list2[i].search("tr[1]/td[2]").text.sub("【愛称】", '')
       nickname.split(/[,|、]/).each do |name|
@@ -103,7 +106,8 @@ class NickName
           name: name,
           origin_name: oname,
           hash: Digest::MD5.hexdigest(name),
-          type: TYPE_UMA
+          type: TYPE_UMA,
+          alias: true
         }
       end
     end if list1.size == list2.size
@@ -130,7 +134,8 @@ class NickName
           name: oname,
           origin_name: oname,
           hash: Digest::MD5.hexdigest(oname),
-          type: TYPE_IMAS
+          type: TYPE_IMAS,
+          alias: false
         }
         line.search("td[2]").text.split(/[,|、]/).each do |name|
           name = name.strip
@@ -139,7 +144,8 @@ class NickName
             name: name,
             origin_name: oname,
             hash: Digest::MD5.hexdigest(name),
-            type: TYPE_IMAS
+            type: TYPE_IMAS,
+            alias: true
           }
         end
       end
