@@ -1,10 +1,10 @@
 source 'https://rubygems.org'
-ruby '2.4.5'
+ruby '2.5.3'
 
 gem 'rake'
 gem 'mechanize'
 gem 'json'
 gem 'log4r'
-gem 'nokogiri', '~> 1.8.0'
+gem "nokogiri", ">= 1.8.5"
 gem 'parallel'
 gem 'weighted_randomizer'
