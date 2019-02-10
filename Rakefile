@@ -66,3 +66,7 @@ end
 task :heroku_stop do
   sh "heroku scale clock=0"
 end
+
+task :heroku_bundler_update do
+  sh "heroku buildpacks:set https://github.com/bundler/heroku-buildpack-bundler2.git"
+end
